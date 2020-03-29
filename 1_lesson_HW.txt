@@ -1,0 +1,4 @@
+1) Команда для установки недостающих зависимостей gcc make perl: sudo get-apt install gcc make perl;
+2) Команда для установки ssh сервера: sudo apt-get install openssh-server;
+3) Команда для добавления порта 22 в исключения фаервола ufw: sudo ufw allow ssh;
+4) Команда для генерации ssh ключа: ssh-keygen;
