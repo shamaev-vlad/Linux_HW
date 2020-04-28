@@ -1,0 +1,135 @@
+1. Написать скрипт, который удаляет из текстового файла пустые строки и заменяет маленькие символы на большие. 
+
+
+	Чтобы создать скрипт использовал команду «vim formattingtext.sh»
+
+	Далее в открывшемся редакторе написал скрипт:
+
+		#!/bin/bash
+  
+	usage(){
+        	cat << eof
+	This is a script that removes empty lines from a text file and replaces lowercase characters to uppercase	usage: $0 [file]
+	eof
+	}
+
+	[[ $# == 0 ]] && usage
+	[[ -f $1 ]] && sed '/^$/d' $1 > input.txt && tr [:lower:] [:upper:] < input.txt > formtxt.txt && \ 
+	rm input.txt
+
+
+	Чтобы посмотреть информацию о скрипте ввожу команду «./formattingtext.sh»
+	
+	Создаю файл с рандомным содержимым «cat > file.txt»  
+
+	// qwerty	   //
+		
+	// qwerty123   //
+
+	// qwerty1234  //
+
+	И чтобы отформатировать файл ввожу команду «./formattingtext.sh file.txt»
+	
+	Создаётся файл «formtxt.txt» с отредактированным содержимым
+
+	// QWERTY	    //
+	// QWERTY123  //
+	// QWERTY1234 //
+
+
+2. Определить, какие ошибки записываются в «/var/log/auth.log» при попытке неудачной аутентификации пользователя
+	для ssh подключения, для подключения через терминал - ctrl+alt+f3 и для подключения с помощью виртуального 	терминала (gui приложения). Сделать скрипт мониторинга лога «/var/log/auth.log» на наличие этих событий,
+	который выводит сообщения о попытке неудачной аутентификации на экран.
+	
+	Проверить скрипт, выполнив ошибочную регистрацию с терминала, с помощью виртуального терминала и через ssh.
+	Скрипт должен выводить информацию о том, как его использовать.
+
+	#!/bin/bash
+	usage(){
+        	cat << eof
+	This is a script displays messages about failed authentication attempts on the screen
+	Exit: ^C
+	Usage: $0 [option]
+	Options: --help
+	Examples:
+  	 $0
+  	 $0 --help
+	eof
+	}
+	if [[ $1 == '--help' ]]
+	then
+        usage
+	else
+        while true; do
+                lines=$(cat /var/log/auth.log | wc -l)
+                sleep 10
+                lines_new=$(cat /var/log/auth.log | wc -l)
+
+                if [ $lines -lt $lines_new ]
+                then
+                        diff=$[lines_new-lines]
+                        #echo $diff
+                        tail -$diff /var/log/auth.log | grep -P '^.*authentication failure;.*$'
+                else
+                        continue
+
+                fi
+        done
+fi
+
+
+
+Apr 13 13:27:52 ubuntu-linux sshd[14406]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=172.20.10.3  user=vlad
+Apr 13 13:47:21 ubuntu-linux gdm-password]: pam_unix(gdm-password:auth): authentication failure; logname= uid=0 euid=0 tty=/dev/tty1 ruser= rhost=  user=vlad
+
+
+3. Написать скрипт, который в указанной с помощью параметра -d директории создает указанные файлы. Если файлы уже существуют, то выводится предупреждения на экран. Если указано несколько директорий, то выводится ошибка с соответствующей информацией. Созданным файлам, которые имеют разрешения '.sh' нужно дать права на выполнения. Скрипт должен выводить информацию о том, как его использовать и понятные сообщения об ошибках. Примеры запуска:
+
+./script.sh -d /tmp/task_3
+./script.sh -d file1 file2 file3
+./script.sh -d /tmp/task_3 file1 file2.sh file3
+./script.sh -d /tmp/task_3 -d /tmp/task_3_2 file1 file2.sh file3
+
+
+		#!/bin/bash
+  
+	usage(){
+    	cat << eof
+	This program create files in specified directory.
+	Usage: $0 [option] [directory] [file(s)]
+	Options:
+    	-d - specified directory
+	Examples:
+    	$0 --help
+    	$0 -d /tmp/task_3
+    	$0 -d /tmp/task_3 file1 file2
+	eof
+	}
+
+
+	if [ $1 == '--help' ] && [ $# == '1' ]
+	then
+    	    usage
+      	  exit 0
+	elif [ $1 == '-d' ] && [ -d $2 ] && [ -n "$3" ] && [[ $3 != -* ]]
+	then
+    	    directory=$2
+      	  shift
+      	  shift
+      	  while [[ $# -gt 0 ]]
+      	  do
+      	          [[ -f $directory/$1 ]] && echo File $1 already exists && shift && continue
+      	          if [[ $1 == *.sh ]]
+      	          then
+      	                  touch $directory/$1
+      	                  chmod +x $directory/$1
+      	                  shift
+      	          else
+      	                  touch $directory/$1
+      	                  shift
+      	          fi
+      	  done
+	else
+   	     echo Inappropriate arguments. Try "$0 --help" for more information.
+   	     exit 1
+	fi
