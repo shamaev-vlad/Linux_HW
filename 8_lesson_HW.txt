@@ -5,6 +5,8 @@ sudo apt  install docker-compose
 Создал папку "linux_stuff" и скачал в неё репозиторий
 
 vlad@ubuntu-linux:~$ mkdir linux_stuff
+vlad@ubuntu-linux:~$ cd linux_stuff/
+vlad@ubuntu-linux:~/linux_stuff$ git clone https://github.com/mtuktarov/linux_goodies.git
 
 Создал ещё папки
 
